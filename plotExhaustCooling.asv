@@ -1,0 +1,14 @@
+%plotExhaustCooling.m
+ format long;
+ fluidVol = .001;%m^3
+ waterDens = 1000;%kg/m^3
+ waterSpecificHeat = 4186;%J/(kg*K)
+ fluidMass = waterDens * fluidVol;
+ 
+ output = simulateExhaustCooling();
+ T = output(:,1);
+ Ufluid = output(:,2);
+ Tfluid = getTemperature(Ufluid, 
+ Ucabin = output(:,3);
+ 
+ plot(T,Ufluid,T,Ucabin);

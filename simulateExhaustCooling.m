@@ -1,50 +1,40 @@
-function [ output ] = simulateExhaustCooling()
-
+function [ output ] = simulateExhaustCooling(fluidMass, fluidSpecificHeat, airMass, airSpecificHeat)
+    
     %chosen
     exhaustPower = 100000;%W
     area = 0.1;%(m^2)
     dist = .01;%m
     k = 200;%W/mK
-    fluidVol = .001;%m^3
-    cabinVol = 3;%m^3
     fluidTempInit = 293;%K
     cabinTempInit = 293;%K
-    seconds = 60 * 60;
-    timeStep = 1;
-
-    %preexisting
-    airDens = 1.225;%kg/m^3
-    airSpecificHeat = 1000;%J/(kg*K)
-    %We are choosing water as our fluid (for now)
-    waterDens = 1000;%kg/m^3
-    waterSpecificHeat = 4186;%J/(kg*K)
-
+    outsdTemp = 273;%K
+    cabArea = 10;%m2
+    cabThickness = .1;%m
+    wallK = 20;%W/mK
+    seconds = 60;%60 * 60;
+    
     %derived
-    airMass = airDens * cabinVol;
-    fluidMass = waterDens * fluidVol;
-    airInitialEnergy = getEnergy(cabinTempInit, airMass, airSpecificHeat);
-    fluidInitialEnergy = getEnergy(fluidTempInit, fluidMass, waterSpecificHeat);
-
-    Ufluid = zeros(seconds / timeStep, 1);
-    Uair = zeros(seconds / timeStep, 1);
-
-    Ufluid_current = fluidInitialEnergy;
-    Uair_current = airInitialEnergy;
+    cabinInitialEnergy = getEnergy(cabinTempInit, airMass, airSpecificHeat);
+    fluidInitialEnergy = getEnergy(fluidTempInit, fluidMass, fluidSpecificHeat);
+    
+    [T, U] = ode45(@netFlows, [0,seconds], [fluidInitialEnergy;cabinInitialEnergy]);
+    output = [T U];
 
 
-    for t = 1 : seconds / timeStep
-    Ufluid(t) = Ufluid_current;
-    Uair(t) = Uair_current;
+    function flows = netFlows(~,U)
+        Ufluid_current = U(1);
+        Uair_current = U(2);
 
-    fluidT_current = getTemperature(Ufluid_current,fluidMass,waterSpecificHeat);
-    cabinT_current = getTemperature(Uair_current,airMass,airSpecificHeat);
-    conduction = getConduction(k,area,dist, fluidT_current, cabinT_current);
+        fluidT_current = getTemperature(Ufluid_current,fluidMass,fluidSpecificHeat);
+        cabinT_current = getTemperature(Uair_current,airMass,airSpecificHeat);
 
-    Ufluid_current = Ufluid_current + (exhaustPower - conduction)*timeStep;
-    Uair_current = Uair_current + conduction*timeStep;
+        conduction1 = getConduction(k,area,dist, fluidT_current, cabinT_current);
+        conduction2 = getConduction(wallK,cabArea,cabThickness, cabinT_current, outsdTemp);
+
+        Ufluid_flow = (exhaustPower - conduction1);
+        Uair_flow = (conduction1-conduction2);
+        flows = [Ufluid_flow; Uair_flow];
     end
-    
-    T = timeStep : timeStep : seconds;
-    
-    output = [T' Ufluid Uair];
 end
+
+
