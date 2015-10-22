@@ -3,6 +3,7 @@
  
  %chosen
  fluidVol = .001;%m^3
+ %Volume of nissan altima interior
  cabinVol = 3;%m^3
 
  %preexisting
@@ -12,10 +13,11 @@
  airSpecificHeat = 1000;%J/(kg*K)
  
  %derived
+ cabinSurfaceArea = 6 * cabinVol^(2/3);
  fluidMass = waterDens * fluidVol;
  airMass = airDens * cabinVol;
  
- output = simulateExhaustCooling(fluidMass, waterSpecificHeat, airMass, airSpecificHeat);
+ output = simulateExhaustCooling(cabinSurfaceArea, fluidMass, waterSpecificHeat, airMass, airSpecificHeat);
  time = output(:,1);
  Ufluid = output(:,2);
  Ucabin = output(:,3);

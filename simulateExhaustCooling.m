@@ -1,19 +1,31 @@
-function [ output ] = simulateExhaustCooling(fluidMass, fluidSpecificHeat, airMass, airSpecificHeat)
+function [ output ] = simulateExhaustCooling(cabinSurfaceArea, fluidMass, fluidSpecificHeat, airMass, airSpecificHeat)
     
     %chosen
-    exhaustPower = 100000;%W
-    area = 0.1;%(m^2)
-    dist = .01;%m
-    k = 200;%W/mK
-    fluidTempInit = 293;%K
-    cabinTempInit = 293;%K
+    %We chose to use a nissan altima 2.5 liter 4-cylinder engine for our
+    %model
+    nissanAltimaEnginePower = 182; %hp
+    horsepowerToWatts = 746;
+    engineEfficiency = 1/3;
+    
+    %Fluid is in a aluminum container
+    fluidContainerSurfaceArea = 0.1;%(m^2)
+    fluidContainerThickness = .01;%m
+    aluminumHeatTransferCoefficient = 200;%W/mK
+    
+    %Fluid and cabin start at room temperature
+    fluidTempInit = 296;%K
+    cabinTempInit = 296;%K
     outsdTemp = 273;%K
-    cabArea = 10;%m2
+    
     cabThickness = .1;%m
-    wallK = 20;%W/mK
-    seconds = 60;%60 * 60;
+    wallK = 51.8;%W/mK
+    seconds = 60;
+    
+    %preexisting
+    %convectConst = 100;%W/m2K
     
     %derived
+    exhaustPower = nissanAltimaEnginePower * horsepowerToWatts * (1 - engineEfficiency);
     cabinInitialEnergy = getEnergy(cabinTempInit, airMass, airSpecificHeat);
     fluidInitialEnergy = getEnergy(fluidTempInit, fluidMass, fluidSpecificHeat);
     
@@ -28,8 +40,9 @@ function [ output ] = simulateExhaustCooling(fluidMass, fluidSpecificHeat, airMa
         fluidT_current = getTemperature(Ufluid_current,fluidMass,fluidSpecificHeat);
         cabinT_current = getTemperature(Uair_current,airMass,airSpecificHeat);
 
-        conduction1 = getConduction(k,area,dist, fluidT_current, cabinT_current);
-        conduction2 = getConduction(wallK,cabArea,cabThickness, cabinT_current, outsdTemp);
+        %convection = getConvection(convectConst,area,fluidT_current,cabinT_current);
+        conduction1 = getConduction(aluminumHeatTransferCoefficient,fluidContainerSurfaceArea,fluidContainerThickness, fluidT_current, cabinT_current);
+        conduction2 = getConduction(wallK,cabinSurfaceArea,cabThickness, cabinT_current, outsdTemp);
 
         Ufluid_flow = (exhaustPower - conduction1);
         Uair_flow = (conduction1-conduction2);
