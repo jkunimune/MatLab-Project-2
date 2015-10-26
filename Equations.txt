@@ -1,0 +1,11 @@
+U_f = Energy in Fluid
+U_c = Energy in Cabin
+Q.e = Heat Flow from Exhaust
+Q.c = Heat Flow from Conduction
+Q.o = Heat Flow lost to Outside
+
+dU_f/dt = Q.e-Q.c
+dU_c/dt = Q.c-Q.o
+    Q.e = P
+    Q.c = kA/d(T_f-T_c)
+    Q.o = kA/d(T_c-T_o)
