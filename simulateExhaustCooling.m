@@ -8,7 +8,7 @@ function [ output ] = simulateExhaustCooling(cabinSurfaceArea, fluidMass, fluidS
     engineEfficiency = 1/3;
     
     %Fluid is in a aluminum container
-    fluidContainerSurfaceArea = 0.1;%(m^2)
+    fluidContainerSurfaceArea = .1;%(m^2)
     fluidContainerThickness = .01;%m
     aluminumHeatTransferCoefficient = 200;%W/mK
     
@@ -18,7 +18,7 @@ function [ output ] = simulateExhaustCooling(cabinSurfaceArea, fluidMass, fluidS
     outsdTemp = 273;%K
     
     cabThickness = .1;%m
-    wallK = 51.8;%W/mK
+    wallK = 30;%51.8;%W/mK
     seconds = 60;
     
     %preexisting

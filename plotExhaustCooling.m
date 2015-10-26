@@ -25,6 +25,8 @@
  Tfluid = getTemperature(Ufluid, fluidMass, waterSpecificHeat);
  Tcabin = getTemperature(Ucabin, airMass, airSpecificHeat);
  
+ median(Tcabin - 273)
+ 
  plot(time, Tfluid - 273,time,Tcabin - 273);
  legend('Fluid Temperature','Cabin Temperature');
  ylabel('Temperature (^oC)');
