@@ -1,11 +1,13 @@
-function [ output ] = simulateExhaustCooling(wallK, outsideTemp)
+function [ output ] = simulateExhaustCooling(conductionCoefficient, outsideTemp)
     
     %chosen
     engineEfficiency = 1/3;
-    cabThickness = .1;%m
+    %Cab thickness is not actually 1 meter. Conduction Coefficient is
+    %wallK / cabThickness, so 1 is arbitrary.
+    cabThickness = 1;
     
     fluidVol = .001;%m^3
-    seconds = 30;
+    seconds = 60;
    
     %Fluid is in a aluminum container
     fluidContainerSurfaceArea = .1;%(m^2)
@@ -26,7 +28,9 @@ function [ output ] = simulateExhaustCooling(wallK, outsideTemp)
     waterDens = 1000;%kg/m^3
     waterSpecificHeat = 4186;%J/(kg*K)
     airDens = 1.225;%kg/m^3
-    airSpecificHeat = 1000;%J/(kg*K)\
+    airSpecificHeat = 1000;%J/(kg*K)
+    wallK = conductionCoefficient;
+    
     
     %derived
     fluidMass = waterDens * fluidVol;

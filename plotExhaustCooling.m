@@ -1,7 +1,7 @@
 %plotExhaustCooling.m
  format long;
  
- wallK = 30;%W/mK
+ wallK = 30 / 0.1;%W/mK
  outsideTemp = 273;%K
 
  output = simulateExhaustCooling(wallK, outsideTemp);
