@@ -1,12 +1,12 @@
-function [ output ] = simulateExhaustCooling(cabinSurfaceArea, fluidMass, fluidSpecificHeat, airMass, airSpecificHeat)
+function [ output ] = simulateExhaustCooling(wallK, outsideTemp)
     
     %chosen
-    %We chose to use a nissan altima 2.5 liter 4-cylinder engine for our
-    %model
-    nissanAltimaEnginePower = 182; %hp
-    horsepowerToWatts = 746;
     engineEfficiency = 1/3;
+    cabThickness = .1;%m
     
+    fluidVol = .001;%m^3
+    seconds = 30;
+   
     %Fluid is in a aluminum container
     fluidContainerSurfaceArea = .1;%(m^2)
     fluidContainerThickness = .01;%m
@@ -15,38 +15,44 @@ function [ output ] = simulateExhaustCooling(cabinSurfaceArea, fluidMass, fluidS
     %Fluid and cabin start at room temperature
     fluidTempInit = 296;%K
     cabinTempInit = 296;%K
-    outsdTemp = 273;%K
     
-    cabThickness = .1;%m
-    wallK = 30;%51.8;%W/mK
-    seconds = 60;
     
-    %preexisting
-    %convectConst = 100;%W/m2K
+    % preexisting----------------------------------------------
+    %We chose to use a nissan altima with a 2.5 liter 4-cylinder engine
+    nissanAltimaEnginePower = 182; %hp
+    horsepowerToWatts = 746;
+    cabinVol = 3;%m^3
+    %We are using water as our fluid
+    waterDens = 1000;%kg/m^3
+    waterSpecificHeat = 4186;%J/(kg*K)
+    airDens = 1.225;%kg/m^3
+    airSpecificHeat = 1000;%J/(kg*K)\
     
     %derived
+    fluidMass = waterDens * fluidVol;
+    airMass = airDens * cabinVol;
     exhaustPower = nissanAltimaEnginePower * horsepowerToWatts * (1 - engineEfficiency);
-    cabinInitialEnergy = getEnergy(cabinTempInit, airMass, airSpecificHeat);
-    fluidInitialEnergy = getEnergy(fluidTempInit, fluidMass, fluidSpecificHeat);
+    cabinSurfaceArea = 6 * cabinVol^(2/3);
     
-    [T, U] = ode45(@netFlows, [0,seconds], [fluidInitialEnergy;cabinInitialEnergy]);
-    output = [T U];
+    [Time, Temperature] = ode45(@netFlows, [0,seconds], [fluidTempInit; cabinTempInit]);
+    output = [Time Temperature];
 
 
-    function flows = netFlows(~,U)
-        Ufluid_current = U(1);
-        Uair_current = U(2);
-
-        fluidT_current = getTemperature(Ufluid_current,fluidMass,fluidSpecificHeat);
-        cabinT_current = getTemperature(Uair_current,airMass,airSpecificHeat);
+    function flows = netFlows(~,Temperature)
+        Tfluid_current = Temperature(1);
+        Tair_current = Temperature(2);
 
         %convection = getConvection(convectConst,area,fluidT_current,cabinT_current);
-        conduction1 = getConduction(aluminumHeatTransferCoefficient,fluidContainerSurfaceArea,fluidContainerThickness, fluidT_current, cabinT_current);
-        conduction2 = getConduction(wallK,cabinSurfaceArea,cabThickness, cabinT_current, outsdTemp);
+        conduction1 = getConduction(aluminumHeatTransferCoefficient,fluidContainerSurfaceArea,fluidContainerThickness, Tfluid_current, Tair_current);
+        conduction2 = getConduction(wallK,cabinSurfaceArea,cabThickness, Tair_current, outsideTemp);
 
         Ufluid_flow = (exhaustPower - conduction1);
-        Uair_flow = (conduction1-conduction2);
-        flows = [Ufluid_flow; Uair_flow];
+        Uair_flow = (conduction1 - conduction2);
+        
+        Tfluid_flow = getTemperature(Ufluid_flow, fluidMass, waterSpecificHeat);
+        Tair_flow = getTemperature(Uair_flow, airMass, airSpecificHeat);
+        
+        flows = [Tfluid_flow; Tair_flow];
     end
 end
 

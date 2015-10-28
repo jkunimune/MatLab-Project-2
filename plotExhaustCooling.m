@@ -1,29 +1,13 @@
 %plotExhaustCooling.m
  format long;
  
- %chosen
- fluidVol = .001;%m^3
- %Volume of nissan altima interior
- cabinVol = 3;%m^3
+ wallK = 30;%W/mK
+ outsideTemp = 273;%K
 
- %preexisting
- waterDens = 1000;%kg/m^3
- waterSpecificHeat = 4186;%J/(kg*K)
- airDens = 1.225;%kg/m^3
- airSpecificHeat = 1000;%J/(kg*K)
- 
- %derived
- cabinSurfaceArea = 6 * cabinVol^(2/3);
- fluidMass = waterDens * fluidVol;
- airMass = airDens * cabinVol;
- 
- output = simulateExhaustCooling(cabinSurfaceArea, fluidMass, waterSpecificHeat, airMass, airSpecificHeat);
+ output = simulateExhaustCooling(wallK, outsideTemp);
  time = output(:,1);
- Ufluid = output(:,2);
- Ucabin = output(:,3);
- 
- Tfluid = getTemperature(Ufluid, fluidMass, waterSpecificHeat);
- Tcabin = getTemperature(Ucabin, airMass, airSpecificHeat);
+ Tfluid = output(:,2);
+ Tcabin = output(:,3);
  
  median(Tcabin - 273)
  
@@ -31,4 +15,4 @@
  legend('Fluid Temperature','Cabin Temperature');
  ylabel('Temperature (^oC)');
  xlabel('Time (s)');
- title('Reheating Car with Exhaust Energy');
+ title('Reheating Uninsulated Car with Exhaust Energy');
