@@ -3,20 +3,24 @@
 
 format long;
  
-conductionCoefficient = linspace(100,500,30);%W/m^2K
-outsideTemps = linspace(273-70,15+273,30);%K
+conductionCoefficient = linspace(100,500,100);%W/m^2K
+outsideTemps = linspace(273-70,15+273,100);%K
 
 avgTemps = zeros(length(conductionCoefficient),length(outsideTemps));
 for n = 1:length(conductionCoefficient)
     for m = 1:length(outsideTemps)
         timeSeries = simulateExhaustCooling(conductionCoefficient(n), outsideTemps(m));
         Tcabin = timeSeries(:,3);
-        avgTemps(n,m) = median(Tcabin);
+        avgTemps(m,n) = median(Tcabin);
     end
 end
  
 pcolor(conductionCoefficient, outsideTemps-273, avgTemps - 273);
-colorbar();
+h = colorbar();
+xlabel(h, 'Cabin Temperature (^oC)');
 ylabel('Outside Temperature (^oC)');
 xlabel('Conduction Coefficient (W/(m^2*K))');
 title('Median Cabin Temperature for varying Insulation and Oustide Temperatures');
+
+shading flat;
+shading interp;
