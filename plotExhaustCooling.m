@@ -15,4 +15,4 @@
  legend('Fluid Temperature','Cabin Temperature');
  ylabel('Temperature (^oC)');
  xlabel('Time (s)');
- title('Reheating Uninsulated Car with Exhaust Energy');
+ title('Time Series with Conduction Coefficient = 300 ^W/_{(m^2*K)}');

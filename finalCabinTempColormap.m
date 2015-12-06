@@ -20,7 +20,7 @@ h = colorbar();
 xlabel(h, 'Cabin Temperature (^oC)');
 ylabel('Outside Temperature (^oC)');
 xlabel('Conduction Coefficient (W/(m^2*K))');
-title('Median Cabin Temperature for varying Insulation and Oustide Temperatures');
+title('Using Exhaust to Heat your Car in Cold Weather');
 
 shading flat;
 shading interp;
